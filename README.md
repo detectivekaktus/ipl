@@ -38,5 +38,10 @@ main:
     ret 0
 ```
 
+# Build and dependencies
+The project depends on the NASM assembler and a modern C compiler such as GCC or Clang, so be sure to install them on your machine. Unfortunately, the project is not made for Windows-driven operating systems and will probably never be supported on them.
+
+To build the project simply invoke the `build.sh` script in the root directory and you will find yourself with `ipl` executable inside the same directory.
+
 ## Contributing
 Feel free to improve this language as we go along but be sure to read [CONTRIBUTING.md](https://github.com/detectivekaktus/ipl/blob/main/CONTRIBUTING.md) file before submitting a pull request.

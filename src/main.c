@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "macros/array.h"
-#include "parser.h"
+#include "lexer.h"
 
 void usage(const char *name)
 {

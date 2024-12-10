@@ -11,6 +11,9 @@ typedef struct {
 
 typedef struct {
   char  *filename;
+  size_t line;
+  size_t column;
+
   size_t indentation;
   size_t errors;
 } Lexer;

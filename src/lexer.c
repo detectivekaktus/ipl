@@ -8,6 +8,8 @@
 #define COMPOSE_DOUBLE_TOKEN(t, v) (Token) { .type=(t), .value.double=(v) }
 #define COMPOSE_STRING_TOKEN(t, v) (Token) { .type=(t), .value.string=(v) }
 
+#define ADVANCE(l, i) (l)->column++; i++
+
 char *read_file(const char *filename)
 {
   FILE *file = fopen(filename, "r");
@@ -32,7 +34,9 @@ char *read_file(const char *filename)
 Tokens *lex_file(Lexer *lexer, char *filename)
 {
   lexer->filename = filename;
-  lexer->indentation = 1;
+  lexer->line = 1;
+  lexer->column = 1;
+  lexer->indentation = 0;
   lexer->errors = 0;
 
   Tokens *tokens = da_alloc(Tokens);
@@ -40,7 +44,28 @@ Tokens *lex_file(Lexer *lexer, char *filename)
 
   size_t i = 0;
   while (i < strlen(ctn)) {
-    i++;
+    char c = ctn[i];
+    switch (c) {
+      case '\t':
+      case ' ': {
+        if (c == '\t' || lexer->column == lexer->indentation)
+          lexer->indentation++;
+        ADVANCE(lexer, i);
+      } break;
+
+      case '\n': {
+        lexer->line++;
+        lexer->indentation = 1;
+        lexer->column = 1;
+        i++;
+      } break;
+
+      default: {
+        lexer->errors++;
+        printf("%zu:%zu - Invalid syntax: `%c` is not recognized as a token.\n", lexer->line, lexer->column, c);
+        ADVANCE(lexer, i);
+      } break;
+    }
   }
   da_append(tokens, COMPOSE_INT_TOKEN(EOF, 0));
 

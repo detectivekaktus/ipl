@@ -11,7 +11,10 @@ typedef struct {
 
 typedef struct {
   char  *filename;
+  size_t indentation;
   size_t errors;
 } Lexer;
+
+Tokens *lex_file(Lexer *lexer, char *filename);
 
 #endif

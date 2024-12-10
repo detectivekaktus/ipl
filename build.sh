@@ -4,15 +4,15 @@ CFLAGS="-Wall -Wextra -pedantic -std=c99 -ggdb"
 EXEC="ipl"
 OUTDIR="bin"
 
-SRCS=("src/main.c")
-OBJS=("$OUTDIR/main.o")
+SRCS=("src/main.c" "src/lexer.c")
+OBJS=("$OUTDIR/main.o" "$OUTDIR/lexer.o")
 
 build() {
   mkdir -p $OUTDIR
   for i in "${!SRCS[@]}"; do
     $CC $CFLAGS -c "${SRCS[$i]}" -o ${OBJS[$i]}
   done
-  $CC $CFLAGS $OBJS -o ipl
+  $CC $CFLAGS "${OBJS[@]}" -o ipl
 }
 
 clean() {

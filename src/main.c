@@ -27,9 +27,16 @@ int main(int argc, char **argv)
     }
     else da_append(&files, argv[i]);
   }
-  if (compile) printf("Files to compile:\n");
-  else printf("No operation specified for files:\n");
-  for (size_t i = 0; i < files.size; i++)
-    printf("  %s\n", files.items[i]);
+  if (!compile) {
+    printf("No operation specified for files:\n");
+    for (size_t i = 0; i < files.size; i++)
+      printf("  %s\n", files.items[i]);
+    return 1;
+  }
+
+  Lexer lexer = {0};
+  Tokens *tokens = lex_file(&lexer, files.items[0]);
+  da_heapfree(tokens);
+  da_free(&files);
   return 0;
 }

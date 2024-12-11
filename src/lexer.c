@@ -235,6 +235,28 @@ Tokens *lex_file(Lexer *lexer, char *filename)
           str[i - start] = '\0';
           da_append(tokens, COMPOSE_TOKEN(LITERAL_IDENTIFIER, str, lexer->indentation));
         }
+        else if (isdigit(c)) {
+          size_t start = i;
+          while (isdigit(c)) {
+            ADVANCE(lexer, i);
+            c = ctn[i];
+          }
+          if (c == '.') {
+            ADVANCE(lexer, i);
+            c = ctn[i];
+            while (isdigit(c)) {
+              ADVANCE(lexer, i);
+              c = ctn[i];
+            }
+          }
+//        DON'T FORGET TO FREE THE INTEGER/DECIMAL LITERAL!!!
+          char *str = calloc(i - start + 1, sizeof(char));
+          for (size_t j = 0; start + j < i; j++)
+            str[j] = ctn[start + j];
+          str[i - start] = '\0';
+          if (strchr(str, '.') == NULL) da_append(tokens, COMPOSE_TOKEN(LITERAL_INTEGER, str, lexer->indentation));
+          else da_append(tokens, COMPOSE_TOKEN(LITERAL_DECIMAL, str, lexer->indentation));
+        }
         else {
           lexer->errors++;
           printf("%zu:%zu - Invalid syntax: `%c` is not recognized as a token.\n", lexer->line, lexer->column, c);
@@ -244,7 +266,6 @@ Tokens *lex_file(Lexer *lexer, char *filename)
     }
   }
   da_append(tokens, COMPOSE_TOKEN(TOKEN_EOF, "EOF", 0));
-
   free(ctn);
   return tokens;
 }

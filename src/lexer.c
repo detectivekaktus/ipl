@@ -1,3 +1,5 @@
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -28,6 +30,16 @@ char *read_file(const char *filename)
   ctn[i] = '\0';
   fclose(file);
   return ctn;
+}
+
+bool is_alpha(char c)
+{
+  return toupper(c) == tolower(c) || c == '_';
+}
+
+bool is_alphanumeric(char c)
+{
+  return is_alpha(c) || isdigit(c);
 }
 
 Tokens *lex_file(Lexer *lexer, char *filename)
@@ -86,6 +98,26 @@ Tokens *lex_file(Lexer *lexer, char *filename)
 
       case '}': {
         da_append(tokens, COMPOSE_TOKEN(TOKEN_RIGHT_BRACE, "}", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '"': {
+        ADVANCE(lexer, i);
+        c = ctn[i];
+        size_t start = i;
+        while (c != '"' && c != '\n' && c != '\0')
+          c = ctn[++i];
+        if (c == '\n' || c == '\0') {
+          lexer->errors++;
+          printf("%zu:%zu - Non terminated string literal.\n", lexer->line, lexer->column);
+          break;
+        }
+//      DON'T FORGET TO FREE THE STRING LITERAL!!!
+        char *str = calloc(i - start + 1, sizeof(char));
+        for (size_t j = 0; start + j < i; j++)
+          str[j] = ctn[start + j];
+        str[i - start] = '\0';
+        da_append(tokens, COMPOSE_TOKEN(LITERAL_STRING, str, lexer->indentation));
         ADVANCE(lexer, i);
       } break;
 

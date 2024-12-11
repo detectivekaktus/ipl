@@ -34,7 +34,7 @@ char *read_file(const char *filename)
 
 bool is_alpha(char c)
 {
-  return toupper(c) == tolower(c) || c == '_';
+  return toupper(c) != tolower(c) || c == '_';
 }
 
 bool is_alphanumeric(char c)
@@ -190,8 +190,8 @@ Tokens *lex_file(Lexer *lexer, char *filename)
         c = ctn[i];
         size_t start = i;
         while (c != '"' && c != '\n' && c != '\0') {
-          lexer->column++;
-          c = ctn[++i];
+          ADVANCE(lexer, i);
+          c = ctn[i];
         }
         if (c == '\n' || c == '\0') {
           lexer->errors++;
@@ -215,7 +215,6 @@ Tokens *lex_file(Lexer *lexer, char *filename)
       } break;
 
       case '\n': {
-        printf("Indentation: %zu\n", lexer->indentation);
         lexer->line++;
         lexer->indentation = 0;
         lexer->column = 1;
@@ -223,9 +222,24 @@ Tokens *lex_file(Lexer *lexer, char *filename)
       } break;
 
       default: {
-        lexer->errors++;
-        printf("%zu:%zu - Invalid syntax: `%c` is not recognized as a token.\n", lexer->line, lexer->column, c);
-        ADVANCE(lexer, i);
+        if (is_alpha(c)) {
+          size_t start = i;
+          while (is_alphanumeric(c)) {
+            ADVANCE(lexer, i);
+            c = ctn[i];
+          }
+//        DON'T FORGET TO FREE THE IDENTIFIER LITERAL!!!
+          char *str = calloc(i - start + 1, sizeof(char));
+          for (size_t j = 0; start + j < i; j++)
+            str[j] = ctn[start + j];
+          str[i - start] = '\0';
+          da_append(tokens, COMPOSE_TOKEN(LITERAL_IDENTIFIER, str, lexer->indentation));
+        }
+        else {
+          lexer->errors++;
+          printf("%zu:%zu - Invalid syntax: `%c` is not recognized as a token.\n", lexer->line, lexer->column, c);
+          ADVANCE(lexer, i);
+        }
       } break;
     }
   }

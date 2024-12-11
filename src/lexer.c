@@ -73,8 +73,14 @@ Tokens *lex_file(Lexer *lexer, char *filename)
       } break;
 
       case '/': {
-        da_append(tokens, COMPOSE_TOKEN(TOKEN_SLASH, "/", lexer->indentation));
-        ADVANCE(lexer, i);
+        if (PEAK(ctn, i) == '/') {
+          while (c != '\n' && c != '\0')
+            c = ctn[++i];
+        }
+        else {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_SLASH, "/", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
       } break;
 
       case '%': {
@@ -183,8 +189,10 @@ Tokens *lex_file(Lexer *lexer, char *filename)
         ADVANCE(lexer, i);
         c = ctn[i];
         size_t start = i;
-        while (c != '"' && c != '\n' && c != '\0')
+        while (c != '"' && c != '\n' && c != '\0') {
+          lexer->column++;
           c = ctn[++i];
+        }
         if (c == '\n' || c == '\0') {
           lexer->errors++;
           printf("%zu:%zu - Non terminated string literal.\n", lexer->line, lexer->column);

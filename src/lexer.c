@@ -57,6 +57,84 @@ Tokens *lex_file(Lexer *lexer, char *filename)
   while (i < strlen(ctn)) {
     char c = ctn[i];
     switch (c) {
+      case '+': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_PLUS, "+", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '-': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_MINUS, "-", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '*': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_STAR, "*", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '/': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_SLASH, "/", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '%': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_MODULO, "%", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '>': {
+        if (PEAK(ctn, i) == '=') {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_GREATER_EQUAL, ">=", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
+        else if (PEAK(ctn, i) == '>') {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_SHIFT_RIGHT, ">>", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
+        else da_append(tokens, COMPOSE_TOKEN(TOKEN_GREATER, ">", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '<': {
+        if (PEAK(ctn, i) == '=') {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_LESS_EQUAL, "<=", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
+        else if (PEAK(ctn, i) == '<') {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_SHIFT_LEFT, "<<", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
+        else da_append(tokens, COMPOSE_TOKEN(TOKEN_LESS, "<", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '!': {
+        if (PEAK(ctn, i) == '=') {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_NOT_EQUAL, "!=", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
+        else da_append(tokens, COMPOSE_TOKEN(TOKEN_NOT, "!", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '&': {
+        if (PEAK(ctn, i) == '&') {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_AND, "&&", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
+        else da_append(tokens, COMPOSE_TOKEN(TOKEN_BIT_AND, "&", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '|': {
+        if (PEAK(ctn, i) == '|') {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_OR, "||", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
+        else da_append(tokens, COMPOSE_TOKEN(TOKEN_BIT_OR, "|", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
       case ':': {
         da_append(tokens, COMPOSE_TOKEN(TOKEN_COLON, ":", lexer->indentation));
         ADVANCE(lexer, i);

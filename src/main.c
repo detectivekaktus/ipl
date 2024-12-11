@@ -36,6 +36,8 @@ int main(int argc, char **argv)
 
   Lexer lexer = {0};
   Tokens *tokens = lex_file(&lexer, files.items[0]);
+  for (size_t i = 0; i < tokens->size; i++)
+    printf("  %s\n", tokens->items[i].value);
   da_heapfree(tokens);
   da_free(&files);
   return 0;

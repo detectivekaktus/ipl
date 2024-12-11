@@ -4,11 +4,10 @@
 #include "lexer.h"
 #include "macros/array.h"
 
-#define COMPOSE_INT_TOKEN(typ, val, ind) (Token) { .type=(typ), .value.integer=(val), .indentation=(ind) }
-#define COMPOSE_DOUBLE_TOKEN(typ, val, ind) (Token) { .type=(typ), .value.double=(val), .indentation=(ind) }
-#define COMPOSE_STRING_TOKEN(typ, val, ind) (Token) { .type=(typ), .value.string=(val), .indentation=(ind) }
+#define COMPOSE_TOKEN(typ, val, ind) (Token) { .type=(typ), .value=(val), .indentation=(ind) }
 
 #define ADVANCE(l, i) (l)->column++; i++
+#define PEAK(ctn, i) (ctn)[i + 1]
 
 char *read_file(const char *filename)
 {
@@ -46,6 +45,50 @@ Tokens *lex_file(Lexer *lexer, char *filename)
   while (i < strlen(ctn)) {
     char c = ctn[i];
     switch (c) {
+      case ':': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_COLON, ":", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '=': {
+        if (PEAK(ctn, i) == '=') {
+          da_append(tokens, COMPOSE_TOKEN(TOKEN_EQUAL_EQUAL, "==", lexer->indentation));
+          ADVANCE(lexer, i);
+        }
+        else da_append(tokens, COMPOSE_TOKEN(TOKEN_EQUAL, "=", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '(': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_LEFT_PAREN, "(", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case ')': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_RIGHT_PAREN, ")", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '[': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_LEFT_BRACKET, "[", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case ']': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_RIGHT_BRACKET, "]", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '{': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_LEFT_BRACE, "{", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '}': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_RIGHT_BRACE, "}", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
       case '\t':
       case ' ': {
         if ((c == '\t' || c == ' ') && lexer->column - 1 == lexer->indentation)
@@ -68,7 +111,7 @@ Tokens *lex_file(Lexer *lexer, char *filename)
       } break;
     }
   }
-  da_append(tokens, COMPOSE_INT_TOKEN(EOF, 0, 0));
+  da_append(tokens, COMPOSE_TOKEN(TOKEN_EOF, "EOF", 0));
 
   free(ctn);
   return tokens;

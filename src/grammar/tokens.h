@@ -37,6 +37,7 @@ typedef union {
 typedef struct {
   token_type_t  type;
   TokenValue    value;
+  size_t        indentation;
 } Token;
 
 typedef struct {

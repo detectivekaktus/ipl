@@ -4,9 +4,9 @@
 #include "lexer.h"
 #include "macros/array.h"
 
-#define COMPOSE_INT_TOKEN(t, v) (Token) { .type=(t), .value.integer=(v) }
-#define COMPOSE_DOUBLE_TOKEN(t, v) (Token) { .type=(t), .value.double=(v) }
-#define COMPOSE_STRING_TOKEN(t, v) (Token) { .type=(t), .value.string=(v) }
+#define COMPOSE_INT_TOKEN(typ, val, ind) (Token) { .type=(typ), .value.integer=(val), .indentation=(ind) }
+#define COMPOSE_DOUBLE_TOKEN(typ, val, ind) (Token) { .type=(typ), .value.double=(val), .indentation=(ind) }
+#define COMPOSE_STRING_TOKEN(typ, val, ind) (Token) { .type=(typ), .value.string=(val), .indentation=(ind) }
 
 #define ADVANCE(l, i) (l)->column++; i++
 
@@ -48,14 +48,15 @@ Tokens *lex_file(Lexer *lexer, char *filename)
     switch (c) {
       case '\t':
       case ' ': {
-        if (c == '\t' || lexer->column == lexer->indentation)
-          lexer->indentation++;
+        if ((c == '\t' || c == ' ') && lexer->column - 1 == lexer->indentation)
+          lexer->indentation += (c == '\t') ? 2 : 1;
         ADVANCE(lexer, i);
       } break;
 
       case '\n': {
+        printf("Indentation: %zu\n", lexer->indentation);
         lexer->line++;
-        lexer->indentation = 1;
+        lexer->indentation = 0;
         lexer->column = 1;
         i++;
       } break;
@@ -67,7 +68,7 @@ Tokens *lex_file(Lexer *lexer, char *filename)
       } break;
     }
   }
-  da_append(tokens, COMPOSE_INT_TOKEN(EOF, 0));
+  da_append(tokens, COMPOSE_INT_TOKEN(EOF, 0, 0));
 
   free(ctn);
   return tokens;

@@ -146,6 +146,21 @@ Tokens *lex_file(Lexer *lexer, char *filename)
         ADVANCE(lexer, i);
       } break;
 
+      case ';': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_SEMICOLON, ";", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case '.': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_DOT, ".", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
+      case ',': {
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_COMMA, ",", lexer->indentation));
+        ADVANCE(lexer, i);
+      } break;
+
       case '=': {
         if (PEAK(ctn, i) == '=') {
           da_append(tokens, COMPOSE_TOKEN(TOKEN_EQUAL_EQUAL, "==", lexer->indentation));

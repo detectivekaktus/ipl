@@ -234,6 +234,7 @@ Tokens *lex_file(Lexer *lexer, char *filename)
         lexer->indentation = 0;
         lexer->column = 1;
         i++;
+        da_append(tokens, COMPOSE_TOKEN(TOKEN_NEW_LINE, "/n", lexer->indentation));
       } break;
 
       default: {

@@ -37,6 +37,7 @@ typedef enum {
   LITERAL_DECIMAL,
   LITERAL_STRING,
 
+  TOKEN_NEW_LINE,
   TOKEN_EOF
 } token_type_t;
 
